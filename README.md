@@ -17,7 +17,7 @@
 ├── model                   # 所有model
 ├── template                # <前端>html目录
 │   ├── account             # <前端>账号相关html
-│   └── wirds               # <前端>单词相关html
+│   └── words               # <前端>单词相关html
 ├── static                  # <前端>静态文件，包括js和css
 │   ├── assets              # <前端>公共静态文件
 │   ├── account             # <前端>账号相关静态文件
