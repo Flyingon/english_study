@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>同义词总结</title>
+
+    <!-- public -->
+    <script src="/static/assets/js/jquery-3.3.1.slim.min.js"></script>
+
+    <link href="/static/bootstrap-4/css/bootstrap.css" rel="stylesheet">
+    <script src = "/static/bootstrap-4/js/bootstrap.js" ></script>
+    <script src = "/static/assets/js/utility.js" ></script>
+
+    <script src = "/static/words/js/synonym_words.js" ></script>
+    <script src = "/static/account/js/login.js" ></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="icon" href="/static/assets/img/favicon.ico">
+</head>
+<body>
+<div class="configHead"></div>
+<ul id="wordTypeNav" class="nav nav-pills nav-justified mx-md-5" style="background-color: #7cfdfb;">
+    <li class="nav-item">
+        <a id="noun" class="nav-link text-center" onclick="show_words_table('noun')">名词</a>
+    </li>
+    <li class="nav-item">
+        <a id="verb" class="nav-link text-center" onclick="show_words_table('verb')">动词</a>
+    </li>
+    <li class="nav-item">
+        <a id="adj" class="nav-link text-center" onclick="show_words_table('adj')">形容词</a>
+    </li>
+    <li class="nav-item">
+        <a id="adv" class="nav-link text-center" onclick="show_words_table('adv')">副词</a>
+    </li>
+    <li class="nav-item">
+        <a id="all" class="nav-link text-center" onclick="show_words_table('all')">所有单词</a>
+    </li>
+    <li class="nav-item" id="addWordsNav" style="display: none">
+        <button class="btn btn-warning" onclick="show_words_add_container()">添加单词</button>
+    </li>
+</ul>
+
+<div class="container" id="container_add_word" style="display: none">
+    <br>
+    <div class="row justify-content-center">
+        <input type="text" class="form-control col-4" id="meaning" placeholder="单词释义">
+    </div>
+    <br>
+    <div class="row justify-content-center">
+        <div class="form-check form-check-inline" id="wordType">
+            <label class="form-check-label">
+                <input class="form-check-input" type="radio" name="wordTypeRadio" id="inlineRadio1"
+                       value="noun"> 名词
+            </label>
+        </div>
+        <div class="form-check form-check-inline">
+            <label class="form-check-label">
+                <input class="form-check-input" type="radio" name="wordTypeRadio" id="inlineRadio2"
+                       value="verb"> 动词
+            </label>
+        </div>
+        <div class="form-check form-check-inline">
+            <label class="form-check-label">
+                <input class="form-check-input" type="radio" name="wordTypeRadio" id="inlineRadio3"
+                       value="adj"> 形容词
+            </label>
+        </div>
+                <div class="form-check form-check-inline">
+            <label class="form-check-label">
+                <input class="form-check-input" type="radio" name="wordTypeRadio" id="inlineRadio4"
+                       value="adv"> 副词
+            </label>
+        </div>
+    </div>
+    <br>
+    <div id="wrap_add_word">
+        <div class="row justify-content-center" name="wrap_word_text" id="word_text_1">
+            <div class="input-group col-4">
+                <input type="text" class="form-control" placeholder="单词1" name="word_text" id="word_1">&nbsp
+                <span class="input-group-btn">
+                <button class="btn btn-outline-danger" type="button" name="1" onclick="rem_word_text(this.name)">-</button>
+                <button class="btn btn-outline-success" type="button" name="1"
+                        onclick="add_word_text()">+</button>
+            </span>
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-center" name="wrap_word_text" id="word_text_2">
+            <div class="input-group col-4">
+                <input type="text" class="form-control" placeholder="单词2" name="word_text" id="word_2">&nbsp
+                <span class="input-group-btn">
+                <button class="btn btn-outline-danger" type="button" name="2" onclick="rem_word_text(this.name)">-</button>
+                <button class="btn btn-outline-success" type="button" name="2"
+                        onclick="add_word_text()">+</button>
+            </span>
+            </div>
+        </div>
+        <br>
+        <div class="row justify-content-center" name="wrap_word_text" id="word_text_3">
+            <div class="input-group col-4">
+                <input type="text" class="form-control" placeholder="单词3" name="word_text" id="word_3">&nbsp
+                <span class="input-group-btn">
+                <button class="btn btn-outline-danger" type="button" name="3" onclick="rem_word_text(this.name)">-</button>
+                <button class="btn btn-outline-success" type="button" name="3"
+                        onclick="add_word_text()">+</button>
+            </span>
+            </div>
+        </div>
+        <br>
+    </div>
+    <div class="row justify-content-center">
+        <button id="AddEditSubmitButton" type="button" class="btn btn-primary btn-sm col-4" onclick="submit_add_word()">添加</button>
+    </div>
+    <br>
+</div>
+
+<script type="text/javascript">
+    // $(function () {
+    //     init_headers("近义词总结");
+    // });
+    $(init_headers("近义词总结")).ready(function () {
+        console.log("Header loaded");
+        check_current_user(show_add_words_nav, hiden_add_words_nav);
+        show_words_table(var_word_type);
+    });
+
+</script>
+
+</body>
+
+</html>
