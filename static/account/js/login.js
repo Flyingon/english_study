@@ -69,11 +69,11 @@ function login_submit () {
     $.post("/login", js_param, function (data, status) {
         if (data["err_code"] == 0) {
             alert("登录成功！");
-            window.location.reload();
             $("#LoginBox").fadeOut("fast");
             $("#login").stop().animate({
                 opacity: '1'
             }, 1000);
+            window.location.reload();
         }
         else alert("登录失败：" + data["err_msg"]);
     })
@@ -84,7 +84,7 @@ function check_current_user(funLogin, funLogout){
     var url_get_user = window.location.origin + "/get_user";
     $.post(url_get_user, {}, function (data, status) {
         if (data["err_code"] == 0) {
-            $("#btnGroupDrop1").text("yzy");
+            $("#btnGroupDrop1").text(data['user']);
             if(funLogin) {
                 funLogin();
             }

@@ -1,34 +1,22 @@
 
 var origin_url = window.location.origin; // 不带路径的url地址
 var var_word_type = "all";  // 记录此时的单词词性
-var default_word_container_html = ""; // 添加额编辑单词html,默认三行单词编辑框，用于刷新恢复
+var default_word_container_html = ""; // 添加编辑单词html,默认三行单词编辑框，用于刷新恢复
 
-
-function init_headers(sub_title) {
-    // 根据选择初始化菜单导航栏
-    $('.configHead').load('/template/words/headers.html', function (callback) {
-        var navbars = document.getElementsByClassName("navbar navbar-expand-md navbar-dark mx-md-5")[0].getElementsByClassName("collapse navbar-collapse")[0].getElementsByClassName("navbar-nav mr-auto mt-2 mt-lg-0")[0].getElementsByTagName("li");
-        for (var i = 0; i < navbars.length; i++) {
-            if (navbars[i].children && navbars[i].children[0].innerText == sub_title) {
-                navbars[i].setAttribute("class", "nav-item active")
-            }
-        }
-    });
-}
 
 function active_nav_item(word_type) {
     // 词性导航栏选择
-    var nav_items = document.getElementsByClassName("nav nav-pills nav-justified mx-md-5")[0].getElementsByTagName("li");
-    for (var i=0; i<nav_items.length; i++) {
-        var nav = nav_items[i].children[0];
-        var class_attr = nav.getAttribute("class")
-        if (nav.getAttribute("id") == word_type){
+    $('#word-type-nav').find('li').each(function () {
+        var link_btn = $(this).find('a');
+        var class_attr = link_btn.attr('class');
+        if (link_btn.attr('id') == word_type) {
             if (class_attr.indexOf("active") < 0) class_attr += " active";
-        }else{
-            class_attr = class_attr.replace(" active", "")
         }
-        nav.setAttribute("class", class_attr)
-    }
+        else {
+            class_attr = class_attr.replace(" active", "");
+        }
+        link_btn.attr('class', class_attr);
+    });
 }
 
 function show_words_table(word_type) {
@@ -41,7 +29,7 @@ function show_words_table(word_type) {
         var data = data["data"];
         make_table(th_list, data)
     });
-    default_word_container_html =   $("#container_add_word").html();
+    default_word_container_html = $("#container_add_word").html();
 }
 
 function make_table(th_list, data) {
@@ -106,6 +94,7 @@ function show_table_edit_button() {
     $("button[name='wordDelete']").click(submit_del_word);
     $("button[name='wordEdit']").click(show_words_edit_container);
 }
+
 function show_words_add_container () {
     // 添加单词窗口展开或关闭
     $("#container_add_word").html(default_word_container_html);
@@ -120,14 +109,16 @@ function show_words_edit_container() {
     $("#container_add_word").html(default_word_container_html);
     if($("#container_add_word").css("display") == "none") $("#container_add_word").fadeIn("slow");
     else $("#container_add_word").fadeOut("fast");
-    $("#AddEditSubmitButton").attr("onclick", "submit_update_word()");
-    $("#AddEditSubmitButton").text("更新");
 
     var tr = $(this).parent().parent().parent();
     var row_data = get_word_row(tr);
     var meaning = row_data[0];
     var word_type = row_data[1];
     var words = row_data[2];
+
+    $("#AddEditSubmitButton").attr("onclick", "submit_update_word('" + meaning + "', '" + word_type +"')");
+    $("#AddEditSubmitButton").text("更新");
+    $("html,body").animate({"scrollTop":top});
 
     $("#meaning").val(meaning);
     $('input:radio[value=' + word_type + ']').attr("checked", "true");
@@ -194,6 +185,7 @@ function submit_add_word() {
     $.post("/words/synonym/add", js_param, function (data, status) {
         if (data["err_code"] == 0) {
             alert("添加成功！");
+            $("#container_add_word").html(default_word_container_html);
             show_words_table(var_word_type);
             $("#container_add_word").fadeOut("fast");
         }
@@ -222,7 +214,7 @@ function submit_del_word() {
     })
 }
 
-function submit_update_word() {
+function submit_update_word(old_meaning, old_word_type) {
     var meaning = $("#meaning").val();
     var word_type = $('input:radio[name=wordTypeRadio]:checked').val();
     if (!word_type){
@@ -234,6 +226,8 @@ function submit_update_word() {
         if ($(this).val()) words.push($(this).val());
     });
     var js_param = JSON.stringify({
+        "old_meaning": old_meaning,
+        "old_word_type": old_word_type,
         "meaning": meaning,
         "word_type": word_type,
         "word_list": words
@@ -241,6 +235,7 @@ function submit_update_word() {
     $.post("/words/synonym/mod", js_param, function (data, status) {
         if (data["err_code"] == 0) {
             alert("修改成功！");
+            $("#container_add_word").html(default_word_container_html);
             show_words_table(var_word_type);
             $("#container_add_word").fadeOut("fast");
         }

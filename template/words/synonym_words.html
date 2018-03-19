@@ -5,16 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>同义词总结</title>
-
-    <!-- public -->
+    <!-- js -->
     <script src="/static/assets/js/jquery-3.3.1.slim.min.js"></script>
-
-    <link href="/static/bootstrap-4/css/bootstrap.css" rel="stylesheet">
-    <script src = "/static/bootstrap-4/js/bootstrap.js" ></script>
+    <script src = "/static/assets/bootstrap-4/js/bootstrap.js" ></script>
     <script src = "/static/assets/js/utility.js" ></script>
-
+    <script src = "/static/words/js/common.js" ></script>
     <script src = "/static/words/js/synonym_words.js" ></script>
     <script src = "/static/account/js/login.js" ></script>
+    <!-- css -->
+    <link href="/static/assets/bootstrap-4/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/words/css/common.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -25,26 +25,27 @@
 </head>
 <body>
 <div class="configHead"></div>
-<ul id="wordTypeNav" class="nav nav-pills nav-justified mx-md-5" style="background-color: #7cfdfb;">
-    <li class="nav-item">
-        <a id="noun" class="nav-link text-center" onclick="show_words_table('noun')">名词</a>
-    </li>
-    <li class="nav-item">
-        <a id="verb" class="nav-link text-center" onclick="show_words_table('verb')">动词</a>
-    </li>
-    <li class="nav-item">
-        <a id="adj" class="nav-link text-center" onclick="show_words_table('adj')">形容词</a>
-    </li>
-    <li class="nav-item">
-        <a id="adv" class="nav-link text-center" onclick="show_words_table('adv')">副词</a>
-    </li>
-    <li class="nav-item">
-        <a id="all" class="nav-link text-center" onclick="show_words_table('all')">所有单词</a>
-    </li>
-    <li class="nav-item" id="addWordsNav" style="display: none">
-        <button class="btn btn-warning" onclick="show_words_add_container()">添加单词</button>
-    </li>
+<ul id="word-type-nav" class="nav nav-tabs nav-justified mx-5">
+  <li class="nav-item">
+    <a id="noun" class="nav-link" onclick="show_words_table(this.id)" href="#">名词</a>
+  </li>
+  <li class="nav-item">
+    <a id="verb" class="nav-link" onclick="show_words_table(this.id)" href="#">动词</a>
+  </li>
+  <li class="nav-item">
+    <a id="adj" class="nav-link" onclick="show_words_table(this.id)" href="#">形容词</a>
+  </li>
+  <li class="nav-item">
+    <a id="adv" class="nav-link" onclick="show_words_table(this.id)" href="#">副词</a>
+  </li>
+  <li class="nav-item">
+    <a id="all" class="nav-link" onclick="show_words_table(this.id)" href="#">所有单词</a>
+  </li>
+    <li class="nav-item" id="addWordsNav" style="display: none;" >
+        <a class="btn btn-outline-warning" onclick="show_words_add_container()" href="#">添加单词</a>
+  </li>
 </ul>
+
 
 <div class="container" id="container_add_word" style="display: none">
     <br>
@@ -115,17 +116,13 @@
         <br>
     </div>
     <div class="row justify-content-center">
-        <button id="AddEditSubmitButton" type="button" class="btn btn-primary btn-sm col-4" onclick="submit_add_word()">添加</button>
+        <button id="AddEditSubmitButton" type="button" class="btn btn-primary btn-sm col-4">添加</button>
     </div>
     <br>
 </div>
 
 <script type="text/javascript">
-    // $(function () {
-    //     init_headers("近义词总结");
-    // });
     $(init_headers("近义词总结")).ready(function () {
-        console.log("Header loaded");
         check_current_user(show_add_words_nav, hiden_add_words_nav);
         show_words_table(var_word_type);
     });

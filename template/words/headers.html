@@ -1,7 +1,8 @@
 <body>
 <!-- Nav tabs -->
-<nav class="navbar navbar-expand-md navbar-dark mx-md-5" style="background-color: #34ce57;">
-    <a class="navbar-brand" href="#">单词学习</a>
+<nav class="navbar navbar-expand-md navbar-dark" style="
+    background-image: url('/static/assets/img/navbar_bg.jpg');background-repeat:no-repeat; background-size:100% 100%;-moz-background-size:100% 100%;">
+    <a class="navbar-brand" href="#">单词记录</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02"
             aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -9,8 +10,14 @@
 
     <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-            <li class="nav-item">
-                <a class="nav-link" href="/words/synonym/index#">近义词总结</a>
+            <li class="nav-item bk-ui-tabs-active">
+                <a name="navbar" class="nav-link" href="/words/synonym/index#">近义词总结</a>
+            </li>
+            <li class="nav-item bk-ui-tabs-active">
+                <a name="navbar" class="nav-link" href="/words/reading/index#">TOEFL阅读单词</a>
+            </li>
+            <li class="nav-item bk-ui-tabs-active">
+                <a name="navbar" class="nav-link" href="/words/listen/index#">TOEFL听力单词</a>
             </li>
         </ul>
         <form class="form-inline my-2 my-lg-0" style="display: none">

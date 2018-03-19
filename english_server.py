@@ -27,6 +27,7 @@ def ignore_404s(request, exception):
     return response.redirect('/static/404/html/index.html')
 
 def main():
+    app.static('', './template/index.html')
     app.static('static', './static')
     app.static('template', './template')
     app.static('favicon.ico', './static/assets/img/favicon.ico')

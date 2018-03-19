@@ -105,22 +105,28 @@ async def update_words(param):
     """
     修改单词，保持同一词性下面[单词释义]唯一
     """
-    query_sql = "SELECT meaning, word, type FROM synonymwords WHERE meaning = '{0}' AND type='{1}'".format(param["meaning"], param["word_type"])
-    query_ret = await sql_excute(sql=query_sql)
-    old_words = set()
-    for data in query_ret:
-        old_words.add(data[1])
     create_time = format(datetime.now(), "%Y-%m-%d %H:%M:%S")
     query_sql = ""
-    for word in param["word_list"]:
-        if word not in old_words:
+    if param["old_meaning"] != param["meaning"] or param["old_word_type"] != param["word_type"]:
+        query_sql += "DELETE FROM synonymwords WHERE meaning = '{0}' AND type = '{1}';".format(
+            param["old_meaning"], param["old_word_type"])
+        for word in param["word_list"]:
             query_sql += "INSERT INTO synonymwords (meaning, word, type, create_time) VALUES ('{0}', '{1}', '{2}', '{3}');".format(
-                param["meaning"], word, param["word_type"], create_time)
-        else:
-            old_words.remove(word)
-    for word in old_words:
-        query_sql += "DELETE FROM synonymwords WHERE meaning = '{0}' AND word = '{1}' AND type = '{2}';".format(
-            param["meaning"], word, param["word_type"])
+                    param["meaning"], word, param["word_type"], create_time)
+    else:
+        query_ret = await sql_excute(sql="SELECT meaning, word, type FROM synonymwords WHERE meaning = '{0}' AND type='{1}';".format(param["meaning"], param["word_type"]))
+        old_words = set()
+        for data in query_ret:
+            old_words.add(data[1])
+        for word in param["word_list"]:
+            if word not in old_words:
+                query_sql += "INSERT INTO synonymwords (meaning, word, type, create_time) VALUES ('{0}', '{1}', '{2}', '{3}');".format(
+                    param["meaning"], word, param["word_type"], create_time)
+            else:
+                old_words.remove(word)
+        for word in old_words:
+            query_sql += "DELETE FROM synonymwords WHERE meaning = '{0}' AND word = '{1}' AND type = '{2}';".format(
+                param["meaning"], word, param["word_type"])
     if query_sql:
         rsp = await sql_excute(sql=query_sql)
         if rsp != 0:

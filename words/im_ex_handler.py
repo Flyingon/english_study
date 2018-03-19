@@ -2,7 +2,7 @@
 import pandas as pd
 import psycopg2
 from pony.orm import db_session, sql_debug, select
-from model.data_model import db, SynonymWords
+from model.data_model_bak import db, SynonymWords
 
 config_file = "../conf/server.cfg"
 import configparser

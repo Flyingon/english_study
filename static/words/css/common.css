@@ -1,0 +1,20 @@
+
+#navbarTogglerDemo02 > ul > li > a:link {
+    color: white
+} /* 未访问的链接 */
+
+/*#navbarTogglerDemo02 > ul > li > a:visited {*/
+/*color: yellow*/
+/*} !* 未访问的链接 *!*/
+
+#navbarTogglerDemo02 > ul > li > a:hover {
+    color: yellow
+} /* 鼠标划过链接 */
+
+/*#navbarTogglerDemo02 > ul > li > a:active {*/
+    /*color: yellow*/
+/*} !* 已选中的链接 *!*/
+
+#navbarTogglerDemo02 > ul > li > a.custom-active {
+    color: yellow
+}

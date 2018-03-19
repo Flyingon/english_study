@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TOEFL阅读单词</title>
+    <!-- js -->
+    <script src="/static/assets/js/jquery-3.3.1.slim.min.js"></script>
+    <script src="/static/assets/js/vue/vue.js"></script>
+    <script src="/static/assets/bootstrap-4/js/bootstrap.js" ></script>
+    <script src="/static/assets/js/utility.js" ></script>
+    <script src="/static/words/js/common.js" ></script>
+    <script src="/static/words/js/reading_words.js" ></script>
+    <script src="/static/account/js/login.js" ></script>
+    <!-- Add this after vue.js -->
+    <script src="/static/assets/js/polyfill.min.js"></script>
+    <script src="/static/assets/bootstrap-vue/dist/bootstrap-vue.js"></script>
+    <!-- css -->
+    <link href="/static/assets/bootstrap-4/css/bootstrap.css" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="/static/assets/bootstrap-vue/dist/bootstrap-vue.css"/>
+
+    <link href="/static/words/css/common.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <link rel="icon" href="/static/assets/img/favicon.ico">
+</head>
+<body>
+<div class="configHead"></div>
+<div class="container" id="app-reading-add-word" style="display: none">
+    <br>
+    <div class="row justify-content-center">
+        <input type="text" class="form-control col-4" id="word" placeholder="单词">
+    </div>
+    <br>
+    <div class="row justify-content-center">
+        <input type="text" class="form-control col-4" id="meaning" placeholder="释义">
+    </div>
+    <br>
+    <div class="row justify-content-center">
+        <button id="add-edit-submit-btn" type="button" class="btn btn-primary btn-sm col-4">
+            添加
+        </button>
+    </div>
+    <br>
+</div>
+
+<b-container fluid class="mx-5" id="app-reading-words">
+    <b-row>
+        <b-col md="4" class="my-1">
+            <b-form-group horizontal class="mb-sm-1">
+                <b-input-group>
+                    <b-input-group-append>
+                        <b-btn :disabled="!filter" @click="filter = ''" variant="success">Clear</b-btn>
+                    </b-input-group-append>
+                    <b-form-input v-model="filter" placeholder="Type to Search"/>
+                </b-input-group>
+            </b-form-group>
+        </b-col>
+        <b-col md="4" class="my-1">
+            <b-button href="/words/reading/index" variant="outline-success">返回</b-button>
+        </b-col>
+        <b-col md="4" class="my-1" id="add-word-nav" style="display: none;">
+            <b-button onclick="showAddContainer()" href="#" variant="outline-warning">添加单词</b-button>
+        </b-col>
+    </b-row>
+    <b-table hover :items="items" :fields="fields" :filter="filter" @filtered="onFiltered">
+        <template slot="word_en" slot-scope="data">
+            <a target="_blank" :href="`http://top.zhan.com/cihui/toefl-${data.value}.html`">{{ data.value }}</a>
+        </template>
+    </b-table>
+</b-container>
+
+<script type="text/javascript">
+    $(init_headers("TOEFL阅读单词")).ready(function () {
+        words_show();
+        check_current_user();
+    });
+
+</script>
+
+</body>
+
+</html>
