@@ -1,6 +1,15 @@
 // API Base URL
 const API_BASE = '/api';
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // --- Navigation ---
 function showSection(sectionId) {
     // Hide all sections
@@ -117,20 +126,20 @@ async function analyzeText() {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase">Word</label>
-                            <input type="text" value="${word.word || ''}" class="w-full text-sm border-gray-300 rounded" id="word-${index}-word">
+                            <input type="text" value="${escapeHtml(word.word)}" class="w-full text-sm border-gray-300 rounded" id="word-${index}-word">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase">Meaning</label>
-                            <input type="text" value="${word.meaning_you_learned || ''}" class="w-full text-sm border-gray-300 rounded" id="word-${index}-meaning">
+                            <input type="text" value="${escapeHtml(word.meaning_you_learned)}" class="w-full text-sm border-gray-300 rounded" id="word-${index}-meaning">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="block text-xs font-bold text-gray-500 uppercase">Scene</label>
-                        <input type="text" value="${word.learn_scene || ''}" class="w-full text-sm border-gray-300 rounded" id="word-${index}-scene">
+                        <input type="text" value="${escapeHtml(word.learn_scene)}" class="w-full text-sm border-gray-300 rounded" id="word-${index}-scene">
                     </div>
                     <div class="mb-3">
                         <label class="block text-xs font-bold text-gray-500 uppercase">Usage</label>
-                        <input type="text" value="${word.usage_old || ''}" class="w-full text-sm border-gray-300 rounded" id="word-${index}-usage">
+                        <input type="text" value="${escapeHtml(word.usage_old)}" class="w-full text-sm border-gray-300 rounded" id="word-${index}-usage">
                     </div>
                     <div class="flex justify-end">
                         <button onclick="saveExtractedWord(${index})" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition" id="btn-save-${index}">Confirm & Save</button>
@@ -222,7 +231,7 @@ document.getElementById('add-word-form').addEventListener('submit', async (e) =>
         
         if (response.ok) {
             resultDiv.className = 'mt-4 p-3 rounded-md bg-green-100 text-green-800';
-            resultDiv.innerHTML = `✅ Saved! Word: <strong>${data.word}</strong>`;
+            resultDiv.textContent = `✅ Saved! Word: ${data.word}`;
             form.reset();
         } else {
             resultDiv.className = 'mt-4 p-3 rounded-md bg-red-100 text-red-800';
@@ -289,11 +298,11 @@ async function retrieveWord() {
                     
                     div.innerHTML = `
                         <div class="font-bold text-gray-800">
-                            ${mem.word}
+                            ${escapeHtml(mem.word)}
                             ${distanceBadge}
                         </div>
-                        <div class="text-gray-600 italic">"${mem.meaning_you_learned}"</div>
-                        <div class="text-xs text-gray-400 mt-1">Scene: ${mem.learn_scene}</div>
+                        <div class="text-gray-600 italic">"${escapeHtml(mem.meaning_you_learned)}"</div>
+                        <div class="text-xs text-gray-400 mt-1">Scene: ${escapeHtml(mem.learn_scene)}</div>
                     `;
                     memoryList.appendChild(div);
                 });
@@ -337,15 +346,19 @@ async function loadWordList(page = 1) {
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${item.word}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">${item.meaning_you_learned}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">${item.learn_scene}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-500 text-sm">${item.your_note || '-'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-gray-400 text-xs">${item.create_time?.split(' ')[0] || ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick="deleteWord('${item.record_id || item.id || ''}')" class="text-red-600 hover:text-red-900 ml-2">Delete</button>
-                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${escapeHtml(item.word)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.meaning_you_learned)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">${escapeHtml(item.learn_scene)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-500 text-sm">${escapeHtml(item.your_note || '-')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-400 text-xs">${escapeHtml(item.create_time?.split(' ')[0] || '')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"></td>
                 `;
+                const actionCell = tr.lastElementChild;
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'text-red-600 hover:text-red-900 ml-2';
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => deleteWord(item.record_id || item.id || ''));
+                actionCell.appendChild(deleteButton);
                 tbody.appendChild(tr);
             });
             

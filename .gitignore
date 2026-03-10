@@ -107,3 +107,4 @@ ENV/
 *.log
 
 chroma_db/
+agent.pid

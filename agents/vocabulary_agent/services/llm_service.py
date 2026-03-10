@@ -2,6 +2,10 @@ from openai import OpenAI
 from agents.vocabulary_agent.config import settings
 import json
 import re
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 class LLMService:
     def __init__(self):
@@ -12,6 +16,10 @@ class LLMService:
 
     def _is_configured(self) -> bool:
         return bool(settings.OPENAI_API_KEY and settings.LLM_MODEL)
+
+    def _log_extract_event(self, event: str, **details):
+        # Keep logs useful for debugging without leaking user text or image payloads.
+        logger.info("[LLM][extract][%s] %s", event, json.dumps(details, ensure_ascii=False))
 
     def _build_fallback_summary(self, query: str, context: list) -> str:
         if not context:
@@ -130,7 +138,6 @@ class LLMService:
                 temperature=0.1
             )
             raw = response.choices[0].message.content or ""
-            print("[LLM][extract][fill_response_raw]", raw)
             content = raw.strip()
             if content.startswith("```json"):
                 content = content[7:]
@@ -152,9 +159,10 @@ class LLMService:
                     item = by_lower[w.lower()]
                     item["word"] = w
                     result.append(item)
+            self._log_extract_event("fill_success", target_word_count=len(target_words), returned_count=len(result))
             return result
         except Exception as e:
-            print(f"Fill error: {e}")
+            logger.warning("[LLM][extract][fill_error] %s", e)
             return []
 
     def extract_words_from_text(self, text: str = "", image: str = None) -> list:
@@ -261,27 +269,14 @@ class LLMService:
         
         try:
             model = "glm-4v-flash" if image else settings.LLM_MODEL
-            log_content_parts = []
-            for part in content_parts:
-                if part.get("type") == "image_url":
-                    image_url = part.get("image_url", {}).get("url", "")
-                    short_image_url = image_url if len(image_url) <= 120 else f"{image_url[:120]}...<len={len(image_url)}>"
-                    log_content_parts.append({
-                        "type": "image_url",
-                        "image_url": {"url": short_image_url}
-                    })
-                else:
-                    log_content_parts.append(part)
-            request_log = {
-                "model": model,
-                "target_words": target_words,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": log_content_parts}
-                ],
-                "temperature": 0.1
-            }
-            print("[LLM][extract][request]", json.dumps(request_log, ensure_ascii=False))
+            self._log_extract_event(
+                "request",
+                model=model,
+                has_text=bool(text),
+                has_image=bool(image),
+                target_word_count=len(target_words),
+                text_length=len(text or "")
+            )
             
             response = self.client.chat.completions.create(
                 model=model,
@@ -292,7 +287,6 @@ class LLMService:
                 temperature=0.1
             )
             raw_content = response.choices[0].message.content or ""
-            print("[LLM][extract][response_raw]", raw_content)
             content = raw_content.strip()
             
             # Remove markdown code blocks if present
@@ -316,6 +310,7 @@ class LLMService:
                 if word.lower() in target_set:
                     item["word"] = target_lookup[word.lower()]
                     filtered.append(item)
+            self._log_extract_event("response_parsed", parsed_count=len(parsed), filtered_count=len(filtered))
             needs_fill = (not filtered)
             for item in filtered:
                 if not str(item.get("meaning_you_learned", "")).strip():
@@ -351,7 +346,8 @@ class LLMService:
                     "usage_old": text or word,
                     "your_note": "请确认释义是否符合你的场景"
                 })
+            self._log_extract_event("fallback_used", target_word_count=len(target_words))
             return fallback
         except Exception as e:
-            print(f"Extraction error: {e}")
+            logger.warning("[LLM][extract][error] %s", e)
             return []
