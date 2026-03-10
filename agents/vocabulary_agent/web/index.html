@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Vocabulary Memory Agent</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">🧠 English Memory Agent</h1>
+            <div class="space-x-4">
+                <button onclick="showSection('add-word')" class="hover:text-indigo-200 transition">Add New Word</button>
+                <button onclick="showSection('retrieve-word')" class="hover:text-indigo-200 transition">Retrieve (Chat)</button>
+                <button onclick="showSection('word-list')" class="hover:text-indigo-200 transition">My Vocabulary</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Add Word Section -->
+        <section id="add-word" class="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-indigo-600">📝 Add New Memory</h2>
+            
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button onclick="switchAddMode('smart')" id="tab-smart" class="px-4 py-2 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 focus:outline-none">Smart Input (AI)</button>
+                <button onclick="switchAddMode('manual')" id="tab-manual" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none">Manual Entry</button>
+            </div>
+
+            <!-- Smart Input Mode -->
+            <div id="mode-smart" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tell your story</label>
+                    <p class="text-xs text-gray-500 mb-2">Describe what you learned naturally, or paste an image (Ctrl+V) to analyze.</p>
+                    
+                    <div class="relative">
+                        <textarea id="smart-input-text" rows="4" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" placeholder="Type here or paste an image..."></textarea>
+                        
+                        <!-- Image Preview Overlay -->
+                        <div id="image-preview-container" class="hidden absolute bottom-2 right-2 bg-white p-1 rounded shadow border border-gray-200 flex items-center space-x-2">
+                            <img id="pasted-image-preview" class="h-12 w-auto rounded object-cover" />
+                            <button onclick="clearImage()" class="text-red-500 hover:text-red-700 font-bold px-1">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="analyzeText()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition flex justify-center items-center">
+                    <span id="analyze-btn-text">✨ Analyze & Extract</span>
+                    <div id="analyze-spinner" class="hidden animate-spin ml-2 rounded-full h-4 w-4 border-b-2 border-white"></div>
+                </button>
+                
+                <!-- Extraction Results Preview -->
+                <div id="extraction-preview" class="hidden space-y-4 mt-4">
+                    <h3 class="font-bold text-gray-700">Found Words:</h3>
+                    <div id="extracted-cards" class="space-y-3"></div>
+                </div>
+            </div>
+
+            <!-- Manual Mode (Original Form) -->
+            <form id="add-word-form" class="space-y-4 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Word / Phrase</label>
+                        <input type="text" name="word" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Meaning (You Learned)</label>
+                        <input type="text" name="meaning_you_learned" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Learning Scene</label>
+                    <input type="text" name="learn_scene" placeholder="e.g. Watching a movie, Reading docs" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Original Usage (Sentence)</label>
+                    <textarea name="usage_old" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Personal Note (Optional)</label>
+                    <textarea name="your_note" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"></textarea>
+                </div>
+                
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">Save Memory</button>
+            </form>
+            <div id="add-result" class="mt-4 hidden p-3 rounded-md"></div>
+        </section>
+
+        <!-- Retrieve Section -->
+        <section id="retrieve-word" class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6 mb-8 hidden">
+            <h2 class="text-xl font-bold mb-4 text-indigo-600">🔍 Retrieve & Chat</h2>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">What did you forget? (Describe it)</label>
+                <div class="flex space-x-2">
+                    <input type="text" id="query-input" placeholder="e.g. The word for unexpected luck..." class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border" onkeypress="handleEnter(event)">
+                    <button onclick="retrieveWord()" class="bg-indigo-600 text-white py-2 px-6 rounded-md hover:bg-indigo-700 transition">Ask AI</button>
+                </div>
+            </div>
+
+            <div id="retrieve-loading" class="hidden text-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                <p class="mt-2 text-gray-500">Searching your memory & thinking...</p>
+            </div>
+
+            <div id="retrieve-result" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- AI Summary -->
+                <div class="md:col-span-2 bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                    <h3 class="font-bold text-indigo-800 mb-2">🤖 AI Assistant</h3>
+                    <div id="ai-summary-content" class="prose text-sm text-gray-700 whitespace-pre-wrap"></div>
+                </div>
+
+                <!-- Source Memories -->
+                <div class="md:col-span-1 space-y-4">
+                    <h3 class="font-bold text-gray-600 text-sm uppercase tracking-wider">Relevant Memories</h3>
+                    <div id="memory-list" class="space-y-3">
+                        <!-- Memory items will go here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Word List Section -->
+        <section id="word-list" class="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6 mb-8 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-indigo-600">📚 My Vocabulary List</h2>
+                <button onclick="loadWordList()" class="text-sm text-indigo-600 hover:text-indigo-800">Refresh</button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Word</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meaning</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scene</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vocab-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="pagination" class="mt-4 flex justify-center space-x-2">
+                <!-- Pagination buttons -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center text-sm text-gray-400">
+            <p>English Memory Agent &copy; 2026</p>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
